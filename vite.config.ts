@@ -5,20 +5,29 @@ import path from 'node:path'
 
 import siteConfiguration from './.figma/make/site.json'
 
+// Nombre del repo en GitHub: https://samusst.github.io/LandingPageParaHarryDex/
+const GITHUB_PAGES_BASE = '/LandingPageParaHarryDex/'
 
 // Vite config — https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   // .figma/make/deploy-preview passes `--mode development` for cached-preview builds.
   const emitSourcemaps = mode === 'development'
 
+  // Prioridad: Figma (FIGMA_PUBLIC_URL) > GitHub Pages (build) > raíz (dev local)
+  const base = process.env.FIGMA_PUBLIC_URL
+    ? `${process.env.FIGMA_PUBLIC_URL}/`
+    : command === 'build'
+      ? GITHUB_PAGES_BASE
+      : '/'
+
   return {
-    base: process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : '/',
+    base,
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,
       minify: !emitSourcemaps,
     },
     plugins: [
-react(),
+      react(),
       tailwindcss(),
       figmaSiteConfiguration(siteConfiguration),
       figmaErrorOverlayReplay(),
@@ -37,7 +46,7 @@ react(),
       watch: {
         ignored: [
           '**/.figma/**',
-],
+        ],
       },
     },
     preview: {
@@ -76,6 +85,14 @@ type FigmaSiteConfiguration = {
 
 /** Applies /.figma/make/site.json to the generated document shell. */
 function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
+  // Base resuelta por Vite; se usa para prefijar rutas absolutas (favicon, og:image)
+  // porque las etiquetas inyectadas por transformIndexHtml no se reescriben solas.
+  let resolvedBase = '/'
+
+  function withBase(url: string): string {
+    if (!url.startsWith('/') || url.startsWith('//')) return url
+    return resolvedBase.replace(/\/$/, '') + url
+  }
   function sanitizeHtmlValue(value: string | undefined): string {
     return value?.replace(/[^a-zA-Z0-9_-]/g, '') || ''
   }
@@ -89,8 +106,8 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
   const title = config.title ?? "Figma Make App"
   const description = config.description ?? ''
   // Imported HTML keeps its own favicon; new Makes default to the Make product icon.
-  const favicon = config.icons?.icon ?? '/favicon.svg'
-  const socialImage = config.openGraph?.image ?? ''
+  const rawFavicon = config.icons?.icon ?? '/favicon.svg'
+  const rawSocialImage = config.openGraph?.image ?? ''
   const language = sanitizeHtmlValue(config.language) || 'en'
   const googleAnalyticsId = sanitizeHtmlValue(config.analytics?.googleAnalyticsId)
   const headStart = config.customScripts?.headStart ?? ''
@@ -101,6 +118,9 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
 
   return {
     name: 'figma-site-configuration',
+    configResolved(resolved) {
+      resolvedBase = resolved.base
+    },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         if (!robotsTxt || req.url?.split('?')[0] !== '/robots.txt') return next()
@@ -121,6 +141,9 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
     transformIndexHtml: {
       order: 'pre',
       handler(html) {
+        const favicon = rawFavicon ? withBase(rawFavicon) : ''
+        const socialImage = rawSocialImage ? withBase(rawSocialImage) : ''
+
         let result = html
         result = replaceHtmlCommentSlot(result, 'figma:lang', language)
         result = replaceHtmlCommentSlot(result, 'figma:title', escapeHtmlText(title))
