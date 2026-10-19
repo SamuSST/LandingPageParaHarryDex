@@ -1,9 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import hogwarts from "./assets/crests/hogwarts.png";
 import gryffindor from "./assets/crests/gryffindor.png";
 import slytherin from "./assets/crests/slytherin.png";
 import ravenclaw from "./assets/crests/ravenclaw.png";
 import hufflepuff from "./assets/crests/hufflepuff.png";
+import sortingHat from "./assets/magic/sorting-hat.png";
+import waxSeal from "./assets/magic/wax-seal.png";
+import appScreen from "./assets/app/harrydex-screen.png";
 
 const houses = [
   { name: "Gryffindor", crest: gryffindor, className: "house-red" },
@@ -133,11 +136,20 @@ function TransparentCrest({ src, alt, className = "" }: { src: string; alt: stri
 }
 
 export default function App() {
+  const [sortingStarted, setSortingStarted] = useState(false);
+  const [sortedHouse, setSortedHouse] = useState<number | null>(null);
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#02060b] text-[#f8edd2]">
       <div className="star-field" aria-hidden="true" />
 
       <header className="sticky top-0 z-50 border-b border-[#d9ad4d]/20 bg-[#02060b]/85 backdrop-blur-xl">
+        <div className="announcement-bar">
+          <span>✦</span>
+          <p>La nueva edición del códice ya está disponible</p>
+          <a href="#descargar">Descubrir actualización →</a>
+          <span>✦</span>
+        </div>
         <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 lg:px-10">
           <a href="#inicio" className="flex items-center gap-3" aria-label="HarryDex, inicio">
             <TransparentCrest src={hogwarts} alt="Escudo de Hogwarts" className="h-14 w-14 object-contain drop-shadow-[0_0_12px_rgba(217,173,77,.25)]" />
@@ -187,6 +199,11 @@ export default function App() {
                 </span>
               ))}
             </div>
+            <div className="hero-trust mt-7">
+              <span><b>✓</b> Descarga directa</span>
+              <span><b>✓</b> Sin anuncios invasivos</span>
+              <span><b>✓</b> Datos protegidos</span>
+            </div>
           </div>
 
           <div className="relative z-10 mx-auto h-[600px] w-full max-w-[520px]">
@@ -195,34 +212,11 @@ export default function App() {
             <Spark className="absolute left-4 top-12 text-2xl" />
             <Spark className="absolute right-4 top-40 text-sm" />
             <div className="phone-shell">
-              <div className="phone-inner">
-                <div className="phone-notch" />
-                <div className="flex items-center justify-between px-5 pt-6">
-                  <span className="logo-type text-sm">Harry<span>Dex</span></span>
-                  <span className="text-[#efca68]">✦</span>
-                </div>
-                <div className="px-5 pt-5">
-                  <p className="font-display text-[1.35rem] leading-tight">¿Qué deseas<br />descubrir hoy?</p>
-                  <div className="mt-4 rounded-full border border-white/10 bg-black/35 px-4 py-3 text-[0.62rem] text-[#808b95]">⌕ &nbsp; Buscar en el archivo mágico...</div>
-                  <div className="mt-4 flex gap-2">
-                    {houses.map((house) => <TransparentCrest key={house.name} src={house.crest} alt={house.name} className="h-10 w-10 object-contain" />)}
-                  </div>
-                  <div className="mt-5 overflow-hidden rounded-2xl border border-[#d9ad4d]/30 bg-[#0b1720] p-3">
-                    <div className="relative flex h-52 items-center justify-center overflow-hidden rounded-xl bg-[radial-gradient(circle,#3b2d17,#071018_68%)]">
-                      <div className="absolute h-36 w-36 rotate-45 border border-[#d9ad4d]/20" />
-                      <TransparentCrest src={hogwarts} alt="Escudo de Hogwarts" className="relative z-10 h-40 w-40 object-contain drop-shadow-[0_0_20px_rgba(217,173,77,.25)]" />
-                      <div className="absolute bottom-3 left-3">
-                        <span className="text-[0.5rem] font-bold uppercase tracking-[.2em] text-[#efca68]">Elige tu legado</span>
-                        <h2 className="font-display text-lg">Las cuatro casas</h2>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-1 p-2 text-center">
-                      <div><span>Casas</span><b>4</b></div>
-                      <div><span>Reliquias</span><b>3</b></div>
-                      <div><span>Varitas</span><b>50+</b></div>
-                    </div>
-                  </div>
-                </div>
+              <div className="phone-inner app-preview">
+                <img src={appScreen} alt="Pantalla de bienvenida de la aplicación HarryDex" />
+                <div className="preview-vignette" />
+                <div className="preview-shine" />
+                <div className="phone-notch preview-notch" />
               </div>
             </div>
             <div className="floating-badge badge-left"><span>COLECCIÓN</span><strong>87%</strong><small>COMPLETADA</small></div>
@@ -255,6 +249,67 @@ export default function App() {
                 </div>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="sombrero" className="sorting-section relative overflow-hidden py-28">
+        <div className="sorting-stars" aria-hidden="true">✦　·　✧　·　✦</div>
+        <div className="mx-auto grid max-w-[1280px] gap-14 px-5 lg:grid-cols-[.85fr_1.15fr] lg:items-center lg:px-10">
+          <div className="hat-stage">
+            <div className="hat-aura" />
+            <TransparentCrest src={sortingHat} alt="Sombrero Seleccionador" className="sorting-hat-image" />
+            <div className="hat-whisper">“Difícil... muy difícil...”</div>
+          </div>
+          <div className="sorting-panel">
+            {!sortingStarted ? (
+              <>
+                <div className="eyebrow"><Spark /> CEREMONIA DE SELECCIÓN</div>
+                <h2>Ponte el Sombrero Seleccionador</h2>
+                <p>Cierra los ojos, escucha tu instinto y deja que el sombrero descubra dónde se encuentra tu verdadero hogar mágico.</p>
+                <button type="button" className="gold-button mt-8" onClick={() => setSortingStarted(true)}>
+                  <span className="button-glyph">ϟ</span>
+                  Comenzar la ceremonia
+                  <span>→</span>
+                </button>
+              </>
+            ) : sortedHouse === null ? (
+              <>
+                <div className="eyebrow"><Spark /> EL SOMBRERO ESTÁ ESCUCHANDO</div>
+                <h2>¿Qué guía tu magia?</h2>
+                <p>Elige sin pensarlo demasiado. Tu primera respuesta suele revelar más de lo que imaginas.</p>
+                <div className="sorting-choices">
+                  {[
+                    ["El valor para actuar", "Aunque exista miedo"],
+                    ["La ambición de llegar lejos", "Sin aceptar límites"],
+                    ["La curiosidad por comprender", "Hasta el último misterio"],
+                    ["La lealtad hacia los míos", "Por encima de todo"],
+                  ].map(([title, copy], index) => (
+                    <button type="button" key={title} onClick={() => setSortedHouse(index)}>
+                      <span>{String.fromCharCode(65 + index)}</span>
+                      <div><strong>{title}</strong><small>{copy}</small></div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className={`sorting-result ${houses[sortedHouse].className}`}>
+                <div className="eyebrow"><Spark /> EL SOMBRERO HA DECIDIDO</div>
+                <span className="result-intro">Tu lugar está en</span>
+                <h2>{houses[sortedHouse].name}</h2>
+                <TransparentCrest src={houses[sortedHouse].crest} alt={`Escudo de ${houses[sortedHouse].name}`} className="result-crest" />
+                <p>
+                  {sortedHouse === 0 && "Donde habitan el valor, el coraje y quienes siempre dan un paso al frente."}
+                  {sortedHouse === 1 && "Donde la ambición, la astucia y la determinación forjan grandes destinos."}
+                  {sortedHouse === 2 && "Donde la inteligencia, la creatividad y la curiosidad no conocen fronteras."}
+                  {sortedHouse === 3 && "Donde la lealtad, la paciencia y el trabajo constante son la magia más poderosa."}
+                </p>
+                <div className="result-actions">
+                  <a href="#descargar">Descargar mi códice <span>→</span></a>
+                  <button type="button" onClick={() => setSortedHouse(null)}>Volver a escuchar al sombrero</button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -375,7 +430,12 @@ export default function App() {
               <label className="parchment-field">Correo<input name="correo" type="email" placeholder="tu@correo.com" /></label>
               <button type="submit" className="wax-button sm:col-span-2">Sellar y recibir la APK <span>ϟ</span></button>
             </form>
-            <div className="wax-seal" aria-hidden="true"><span>H</span></div>
+            <div className="download-benefits">
+              <span><b>01</b> Instalación sencilla</span>
+              <span><b>02</b> Actualizaciones mágicas</span>
+              <span><b>03</b> Acceso gratuito</span>
+            </div>
+            <TransparentCrest src={waxSeal} alt="Sello de cera de Hogwarts" className="wax-seal-image" />
           </div>
         </div>
       </section>
@@ -432,6 +492,24 @@ export default function App() {
         </div>
       </section>
 
+      <section className="final-cta relative overflow-hidden px-5 py-28 text-center lg:px-10">
+        <div className="final-rays" aria-hidden="true" />
+        <Spark className="absolute left-[12%] top-[22%] text-2xl" />
+        <Spark className="absolute right-[14%] top-[30%] text-lg" />
+        <div className="relative z-10 mx-auto max-w-4xl">
+          <TransparentCrest src={hogwarts} alt="Escudo de Hogwarts" className="mx-auto h-32 w-32 object-contain drop-shadow-[0_0_25px_rgba(217,173,77,.3)]" />
+          <div className="eyebrow mt-6 justify-center"><Spark /> EL ARCHIVO TE ESPERA <Spark /></div>
+          <h2>La magia no se explica.<br /><span>Se descubre.</span></h2>
+          <p>Descarga HarryDex y convierte cada consulta en el comienzo de una nueva aventura.</p>
+          <a href="#descargar" className="gold-button mt-9">
+            <span className="button-glyph" aria-hidden="true">ϟ</span>
+            Quiero mi HarryDex
+            <span aria-hidden="true">→</span>
+          </a>
+          <small>APK para Android · Descarga gratuita · Sin suscripciones</small>
+        </div>
+      </section>
+
       <footer className="relative border-t border-[#d9ad4d]/20 bg-[#010408] px-5 pb-8 pt-16 lg:px-10">
         <div className="footprints" aria-hidden="true">· ·　　· ·　　　· ·</div>
         <div className="mx-auto grid max-w-[1440px] gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
@@ -441,7 +519,7 @@ export default function App() {
           </div>
           <div>
             <h3 className="footer-title">Mapa del merodeador</h3>
-            <div className="mt-4 grid gap-3 text-xs text-[#929ba5]"><a href="#inicio">Gran Salón</a><a href="#casas">Archivo de casas</a><a href="#archivo">Gran archivo</a><a href="#coleccion">Tu colección</a><a href="#comunidad">Comunidad</a><a href="#preguntas">Oráculo</a></div>
+            <div className="mt-4 grid gap-3 text-xs text-[#929ba5]"><a href="#inicio">Gran Salón</a><a href="#casas">Archivo de casas</a><a href="#sombrero">Sombrero Seleccionador</a><a href="#archivo">Gran archivo</a><a href="#coleccion">Tu colección</a><a href="#comunidad">Comunidad</a><a href="#preguntas">Oráculo</a></div>
           </div>
           <div>
             <h3 className="footer-title">Juramento</h3>
@@ -453,6 +531,11 @@ export default function App() {
           <span>Desarrollado independientemente con magia y código</span>
         </div>
       </footer>
+
+      <div className="mobile-download-bar">
+        <div><strong>HarryDex APK</strong><span>Gratis · Android</span></div>
+        <a href="#descargar">Descargar <span>ϟ</span></a>
+      </div>
     </main>
   );
 }
