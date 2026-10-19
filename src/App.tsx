@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import hogwarts from "./assets/crests/hogwarts.png";
 import gryffindor from "./assets/crests/gryffindor.png";
 import slytherin from "./assets/crests/slytherin.png";
@@ -7,6 +7,7 @@ import hufflepuff from "./assets/crests/hufflepuff.png";
 import sortingHat from "./assets/magic/sorting-hat.png";
 import waxSeal from "./assets/magic/wax-seal.png";
 import appScreen from "./assets/app/harrydex-screen.png";
+import { trackEvent } from "./analytics";
 import { HubSpotForm } from "./HubSpotForm";
 
 const houses = [
@@ -41,6 +42,8 @@ const questions = [
   ["¿Cómo se actualiza la colección?", "Cuando recuperas conexión, la aplicación comprueba si existen nuevas fichas y sincroniza el archivo automáticamente."],
   ["¿Es una aplicación oficial?", "No. HarryDex es un proyecto independiente creado por fans y no está afiliado a Warner Bros. ni a Wizarding World."],
 ];
+
+const APK_DOWNLOAD_URL = "https://www.mediafire.com/file/stsanyi4cf0tovu/HarryDex_%25281%2529.apk/file";
 
 const reviews = [
   {
@@ -136,12 +139,34 @@ function TransparentCrest({ src, alt, className = "" }: { src: string; alt: stri
   return <canvas ref={ref} className={className} role="img" aria-label={alt} />;
 }
 
+function handleDownloadClick({ currentTarget }: MouseEvent<HTMLAnchorElement>) {
+  trackEvent("clic_descarga", {
+    cta_id: currentTarget.id || "sin_id",
+    cta_text: currentTarget.textContent?.replace(/\s+/g, " ").trim() || "descargar",
+    download_url: APK_DOWNLOAD_URL,
+  });
+}
+
 export default function App() {
   const [sortingStarted, setSortingStarted] = useState(false);
   const [sortedHouse, setSortedHouse] = useState<number | null>(null);
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#02060b] text-[#f8edd2]">
+    <main
+      className="min-h-screen overflow-hidden bg-[#02060b] text-[#f8edd2]"
+      onClick={(event) => {
+        if (!(event.target instanceof Element)) return;
+
+        const cta = event.target.closest<HTMLAnchorElement>('a[href="#descargar"]');
+        if (!cta) return;
+
+        trackEvent("clic_descarga", {
+          cta_id: cta.id || "sin_id",
+          cta_text: cta.textContent?.replace(/\s+/g, " ").trim() || "descargar",
+          download_url: "formulario",
+        });
+      }}
+    >
       <div className="star-field" aria-hidden="true" />
 
       <header className="sticky top-0 z-50 border-b border-[#d9ad4d]/20 bg-[#02060b]/85 backdrop-blur-xl">
@@ -164,7 +189,7 @@ export default function App() {
               </a>
             ))}
           </nav>
-          <a href="#descargar" className="nav-download">Obtener APK <span aria-hidden="true">↓</span></a>
+          <a href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer" data-download-link="true" onClick={handleDownloadClick} className="nav-download">Obtener APK <span aria-hidden="true">↓</span></a>
         </div>
       </header>
 
@@ -183,7 +208,7 @@ export default function App() {
               Atrapa el conocimiento. Explora cada personaje, descifra cada varita y descubre los secretos de las cuatro casas en una colección que siempre viaja contigo.
             </p>
             <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-              <a id="btn-cta-principal" href="#descargar" className="gold-button">
+              <a id="btn-cta-principal" href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer" data-download-link="true" onClick={handleDownloadClick} className="gold-button">
                 <span className="button-glyph" aria-hidden="true">ϟ</span>
                 Descargar APK HarryDex
                 <span aria-hidden="true">→</span>
@@ -306,7 +331,7 @@ export default function App() {
                   {sortedHouse === 3 && "Donde la lealtad, la paciencia y el trabajo constante son la magia más poderosa."}
                 </p>
                 <div className="result-actions">
-                  <a href="#descargar">Descargar mi códice <span>→</span></a>
+                  <a href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer" data-download-link="true" onClick={handleDownloadClick}>Descargar mi códice <span>→</span></a>
                   <button type="button" onClick={() => setSortedHouse(null)}>Volver a escuchar al sombrero</button>
                 </div>
               </div>
@@ -503,7 +528,7 @@ export default function App() {
           <div className="eyebrow mt-6 justify-center"><Spark /> EL ARCHIVO TE ESPERA <Spark /></div>
           <h2>La magia no se explica.<br /><span>Se descubre.</span></h2>
           <p>Descarga HarryDex y convierte cada consulta en el comienzo de una nueva aventura.</p>
-          <a id="btn-cta-2" href="#descargar" className="gold-button mt-9">
+          <a id="btn-cta-2" href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer" data-download-link="true" onClick={handleDownloadClick} className="gold-button mt-9">
             <span className="button-glyph" aria-hidden="true">ϟ</span>
             Quiero mi HarryDex
             <span aria-hidden="true">→</span>
@@ -536,7 +561,7 @@ export default function App() {
 
       <div className="mobile-download-bar">
         <div><strong>HarryDex APK</strong><span>Gratis · Android</span></div>
-        <a href="#descargar">Descargar <span>ϟ</span></a>
+        <a href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer" data-download-link="true" onClick={handleDownloadClick}>Descargar <span>ϟ</span></a>
       </div>
     </main>
   );

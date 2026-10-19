@@ -1,8 +1,4 @@
 {
-  "title": "HeryDex",
-  "icons": {
-    "icon": "/herydex.svg"
-  },
   "description": "Explore a magical encyclopedia to discover Harry Potter characters, wands, and houses with live search, filters, and collectible card previews.",
   "robots": {
     "index": false
