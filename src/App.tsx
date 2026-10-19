@@ -7,6 +7,7 @@ import hufflepuff from "./assets/crests/hufflepuff.png";
 import sortingHat from "./assets/magic/sorting-hat.png";
 import waxSeal from "./assets/magic/wax-seal.png";
 import appScreen from "./assets/app/harrydex-screen.png";
+import { HubSpotForm } from "./HubSpotForm";
 
 const houses = [
   { name: "Gryffindor", crest: gryffindor, className: "house-red" },
@@ -254,7 +255,7 @@ export default function App() {
       </section>
 
       <section id="sombrero" className="sorting-section relative overflow-hidden py-28">
-        <div className="sorting-stars" aria-hidden="true">✦　·　✧　·　✦</div>
+        <div className="sorting-stars" aria-hidden="true">✦ · ✧ · ✦</div>
         <div className="mx-auto grid max-w-[1280px] gap-14 px-5 lg:grid-cols-[.85fr_1.15fr] lg:items-center lg:px-10">
           <div className="hat-stage">
             <div className="hat-aura" />
@@ -425,11 +426,12 @@ export default function App() {
               <h2 className="mt-4 font-display text-3xl font-bold text-[#24180e] sm:text-5xl">Tu aventura comienza aquí</h2>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#5b4733]">Escribe tu nombre en el registro y una lechuza digital llevará HarryDex directamente a tu correo.</p>
             </div>
-            <form className="mx-auto mt-9 grid max-w-2xl gap-5 sm:grid-cols-2" aria-label="Formulario para descargar HarryDex">
-              <label className="parchment-field">Nombre<input name="nombre" type="text" placeholder="Tu nombre completo" /></label>
-              <label className="parchment-field">Correo<input name="correo" type="email" placeholder="tu@correo.com" /></label>
-              <button type="submit" className="wax-button sm:col-span-2">Sellar y recibir la APK <span>ϟ</span></button>
-            </form>
+            
+            {/* Componente de HubSpot integrado */}
+            <div className="mx-auto mt-9 max-w-2xl" aria-label="Formulario para descargar HarryDex">
+              <HubSpotForm />
+            </div>
+
             <div className="download-benefits">
               <span><b>01</b> Instalación sencilla</span>
               <span><b>02</b> Actualizaciones mágicas</span>
@@ -484,7 +486,7 @@ export default function App() {
           <div className="faq-list">
             {questions.map(([question, answer], index) => (
               <details key={question} open={index === 0}>
-                <summary><span>{question}</span><b>+</b></summary>
+                <summary className="faq-trigger"><span>{question}</span><b>+</b></summary>
                 <p>{answer}</p>
               </details>
             ))}
@@ -501,7 +503,7 @@ export default function App() {
           <div className="eyebrow mt-6 justify-center"><Spark /> EL ARCHIVO TE ESPERA <Spark /></div>
           <h2>La magia no se explica.<br /><span>Se descubre.</span></h2>
           <p>Descarga HarryDex y convierte cada consulta en el comienzo de una nueva aventura.</p>
-          <a href="#descargar" className="gold-button mt-9">
+          <a id="btn-cta-2" href="#descargar" className="gold-button mt-9">
             <span className="button-glyph" aria-hidden="true">ϟ</span>
             Quiero mi HarryDex
             <span aria-hidden="true">→</span>
@@ -511,7 +513,7 @@ export default function App() {
       </section>
 
       <footer className="relative border-t border-[#d9ad4d]/20 bg-[#010408] px-5 pb-8 pt-16 lg:px-10">
-        <div className="footprints" aria-hidden="true">· ·　　· ·　　　· ·</div>
+        <div className="footprints" aria-hidden="true">· ·  · ·   · ·</div>
         <div className="mx-auto grid max-w-[1440px] gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-3"><TransparentCrest src={hogwarts} alt="Escudo de Hogwarts" className="h-16 w-16 object-contain" /><span className="logo-type text-2xl">Harry<span>Dex</span></span></div>
